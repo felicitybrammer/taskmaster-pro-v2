@@ -139,6 +139,49 @@ $("#task-form-modal .btn-primary").click(function () {
   }
 });
 
+//turn columns into sortables
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  activate: function(event) {
+    console.log("activate", this);
+  },
+  deactivate: function(event) {
+    console.log("deactivate", this);
+  },
+  over: function(event) {
+    console.log("over", event.target);
+  },
+  out: function(event) {
+    console.log("out", event.target);
+  },
+  update: function(event) {
+    var tempArr = [];
+
+    $(this).children().each(function() {
+      //get text and date values of children
+      var text = $(this).find("p").text().trim();
+      var date = $(this).find("span").text().trim();
+
+      //add task date to the temp array as an object (add persistence to update)
+      tempArr.push({
+        text: text,
+        date: date
+      });
+    });
+    console.log(tempArr);
+
+    //trim down list's id to match object property
+    var arrName = $(this).attr("id").replace("list-", "");
+    //update array on tasks object and save
+    tasks[arrName] = tempArr;
+
+    saveTasks();
+  }
+});
+
 // remove all tasks
 $("#remove-tasks").on("click", function () {
   for (var key in tasks) {
@@ -146,6 +189,20 @@ $("#remove-tasks").on("click", function () {
     $("#list-" + key).empty();
   }
   saveTasks();
+});
+
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) {
+    ui.draggable.remove();
+  },
+  over: function(event, ui) {
+    console.log("over");
+  },
+  out: function(event, ui) {
+    console.log("out");
+  }
 });
 
 // load tasks for the first time
